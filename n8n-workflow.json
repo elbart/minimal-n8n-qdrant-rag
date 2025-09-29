@@ -1,0 +1,461 @@
+{
+  "name": "Qdrant RAG Example",
+  "nodes": [
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n\n  \"chatInput\": {{ JSON.stringify($json.body?.chatInput ?? $json.chatInput) }},\n\n  \"sessionId\": \"{{ $json.body?.sessionId ?? $json.sessionId }}\",\n\n  \"user\": {{ \"\\\"\" +$json.body?.user.name + \"\\\"\" ?? \"\" }}\n\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        -96
+      ],
+      "id": "a469b297-501c-4a80-8ae4-8a1d354c1aed",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "owui",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        128
+      ],
+      "id": "56227089-235a-4e2c-b755-236b6b0013ac",
+      "name": "Webhook",
+      "webhookId": "49be1654-2605-4824-9205-a8c6d755416b"
+    },
+    {
+      "parameters": {
+        "topK": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.retrieverVectorStore",
+      "typeVersion": 1,
+      "position": [
+        688,
+        112
+      ],
+      "id": "a599d33f-3a55-41d6-a3ea-b9cced325634",
+      "name": "Vector Store Retriever"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {output: $input.first().json.response}\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -96
+      ],
+      "id": "4b233b89-e60c-45d6-9c8a-d98d0e066c11",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1104,
+        -96
+      ],
+      "id": "f9447344-8b93-4c03-8c78-c70882ffd8b0",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "content": "# Chat with imported data",
+        "height": 816,
+        "width": 1424
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "ce68f2ec-b217-44df-b6aa-51493a1b1fcf",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Ingest Data to Qdrant",
+        "height": 816,
+        "width": 576,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -176
+      ],
+      "typeVersion": 1,
+      "id": "6c9954d7-4496-46d6-aaa0-6e0c1f3fd6d8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "repository": "https://github.com/elbart/sql-press",
+        "textSplittingMode": "custom",
+        "additionalOptions": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentGithubLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        160
+      ],
+      "id": "b8d199d4-80c8-45b1-94b1-4b446f969613",
+      "name": "GitHub Document Loader",
+      "credentials": {
+        "githubApi": {
+          "id": "k246outiSDVdAmtX",
+          "name": "GitHub Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        352
+      ],
+      "id": "3f89ff9a-f0ad-44f1-806e-66575f58336c",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "content": "# Reset Qdrant Collection\n",
+        "height": 304,
+        "width": 576,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -528
+      ],
+      "typeVersion": 1,
+      "id": "8cc20a06-646d-4dd3-9970-5215ca563430",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -96
+      ],
+      "id": "95a273b2-b5be-4099-9b05-b9609cb4039d",
+      "name": "When chat message received",
+      "webhookId": "094ff3ff-6e00-4a61-acbf-df690670c065"
+    },
+    {
+      "parameters": {
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "demo",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        320
+      ],
+      "id": "650ed7ef-4142-482e-98de-ec54cc755e21",
+      "name": "Qdrant Vector DB Retrieve",
+      "credentials": {
+        "qdrantApi": {
+          "id": "ayZB8lWucGmodr6T",
+          "name": "Qdrant Instance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "demo",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1.3,
+      "position": [
+        -576,
+        -80
+      ],
+      "id": "88c95263-c679-49c1-8619-25899096a12f",
+      "name": "Qdrant Vector DB Insert",
+      "credentials": {
+        "qdrantApi": {
+          "id": "ayZB8lWucGmodr6T",
+          "name": "Qdrant Instance"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemPromptTemplate": "=You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.\nIf you don't know the answer, just say that you don't know, don't try to make up an answer.\n----------------\nContext: {context}\n----------------\nQuestion: {{ $json.chatInput }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainRetrievalQa",
+      "typeVersion": 1.6,
+      "position": [
+        544,
+        -96
+      ],
+      "id": "03ccf51b-4247-475e-82fc-95f3ced531e0",
+      "name": "AI Question and Answer Chain"
+    },
+    {
+      "parameters": {
+        "model": "embeddinggemma:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        -576,
+        784
+      ],
+      "id": "263eaba2-c2c4-4203-8c66-5724f8f5476e",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "3tzV64Ug4T2FBiyF",
+          "name": "Ollama Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3-coder:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        544,
+        112
+      ],
+      "id": "84d1d881-2419-4ee5-b3be-8b94c3fa7b5f",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "3tzV64Ug4T2FBiyF",
+          "name": "Ollama Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteCollection",
+        "collectionName": {
+          "__rl": true,
+          "value": "demo",
+          "mode": "name"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-qdrant.qdrant",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        -416
+      ],
+      "id": "974c357e-8779-432f-8ad4-d1c7ea3213f5",
+      "name": "Delete Collection",
+      "credentials": {
+        "qdrantRestApi": {
+          "id": "Tfw2cZFyNZZKw2ku",
+          "name": "Qdrant REST API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -864,
+        -80
+      ],
+      "id": "20ca4523-a15c-4b0c-8aee-3a383b675a80",
+      "name": "When clicking ‘Execute workflow’"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Question and Answer Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Retriever": {
+      "ai_retriever": [
+        [
+          {
+            "node": "AI Question and Answer Chain",
+            "type": "ai_retriever",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Document Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector DB Insert",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "GitHub Document Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qdrant Vector DB Retrieve": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Retriever",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Question and Answer Chain": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector DB Insert",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector DB Retrieve",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Question and Answer Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Qdrant Vector DB Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e39158e1-3c8d-489a-ad96-a3f4efbce7e3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "15062616044558f7b658c62e53102fc0afe906422b1547b7921c3a3945537515"
+  },
+  "id": "mYdVmaF7GP3drUrn",
+  "tags": []
+}
